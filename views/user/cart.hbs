@@ -1,0 +1,109 @@
+<section>
+    <div class="container">
+        {{#if products.length}}
+        <table class="table mt-5">
+            <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each products}}
+                <tr>
+                    <td><img src="/product-images/{{this.product._id}}.jpg" alt="" style="width: 70px;height:70px;"></td>
+                    <td>{{this.product.Name}}</td>
+                    <td>Rs.{{this.product.Price}}</td>
+                    <td>
+                        <button class="btn cart-item-count mr-3" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user}}',-1)">-</button>
+                        <span id="{{this.product._id}}">{{this.quantity}}</span>
+                        <button class="btn cart-item-count ml-3" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user}}',1)">+</button>
+                    </td>
+                
+                    <td><a href="/remove-product/{{this.product._id}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove {{this.Name}}?')">Remove</a></td>
+
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <hr> 
+        <div class="float-right pr-5">
+            <h5 class="float-left mr-5">Total: Rs.<span id="total">{{totalValue}}</span>/-</h5>
+            <a href="/place-order" class="btn btn-success mt-3" style="width: 100%;">Place order</a>
+        </div>
+        {{else}}
+     
+  <div class="card align-self-center">
+        <div class="empty-cart">
+            <h3>Your cart is empty.</h3>
+            <p>Add some products to your cart and come back here to place your order.</p>
+        </div>
+    </div>
+        {{/if}}
+    </div>
+</section>
+ <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            padding: 20px;
+        }
+        .card{
+             background-color: rgb(255, 211, 203);
+             border-radius: 5px;
+        }
+
+        .empty-cart {
+            text-align: center;
+            margin-top: 100px;
+            margin-bottom: 100px;
+           
+        }
+
+        .empty-cart h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+           
+        }
+
+        .empty-cart p {
+            font-size: 16px;
+            margin-bottom: 20px;
+           
+        }
+        </style>
+<script>
+    function changeQuantity(cartId,proId,userId,count){
+        let quantity = parseInt(document.getElementById(proId).innerHTML)
+        count = parseInt(count)
+        $.ajax({
+            url:'/change-product-quantity',
+            data:{
+                user:userId,
+                cart:cartId,
+                product:proId,
+                count:count,
+                quantity:quantity
+            },
+            method:'post',
+            success:(response)=>{
+                     if (response.removeProduct){
+                        alert("Product removed from cart!")
+                        location.reload()
+                     }
+                     else{
+                        document.getElementById(proId).innerHTML= quantity+count;
+                        
+                     }
+            }
+        })
+    }
+    
+</script>
