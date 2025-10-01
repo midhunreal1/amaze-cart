@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#if title}}{{title}} - AmazeCart Admin{{else}}AmazeCart Admin{{/if}}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tanstack/table-core@8.10.7/build/lib/index.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(135deg, #2c1810 0%, #8b4513 50%, #d2691e 100%);
+            color: white;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .sidebar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: #ffd700;
+            padding-left: 30px;
+        }
+
+        .sidebar-menu i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu .menu-text {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Main Content Styles */
+        .admin-main {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+
+        .admin-topbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .topbar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+        }
+
+        .admin-content {
+            padding: 30px;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        /* Custom Button Styles */
+        .btn-admin-primary {
+            background: linear-gradient(45deg, #d2691e, #8b4513);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-admin-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.4);
+            color: white;
+        }
+
+        .btn-admin-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-admin-danger {
+            background: linear-gradient(45deg, #dc3545, #e74c3c);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        /* TanStack Table Styles */
+        .tanstack-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .tanstack-table th,
+        .tanstack-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tanstack-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tanstack-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .tanstack-table img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(45deg, #d2691e, #8b4513);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            padding: 20px 25px;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 20px 25px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #d2691e;
+            box-shadow: 0 0 0 0.2rem rgba(210, 105, 30, 0.25);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .topbar-title {
+                font-size: 1.2rem;
+            }
+
+            .admin-content {
+                padding: 20px 15px;
+            }
+
+            .table-container {
+                padding: 15px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .table-actions {
+                margin-left: 0;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #d2691e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <a href="/admin" class="sidebar-brand">AmazeCart</a>
+            <div class="sidebar-subtitle">Admin Panel</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="/admin" class="{{#ifEquals currentPage 'dashboard'}}active{{/ifEquals}}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="menu-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/products" class="{{#ifEquals currentPage 'products'}}active{{/ifEquals}}">
+                    <i class="fas fa-box"></i>
+                    <span class="menu-text">Products</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/users" class="{{#ifEquals currentPage 'users'}}active{{/ifEquals}}">
+                    <i class="fas fa-users"></i>
+                    <span class="menu-text">Users</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/orders" class="{{#ifEquals currentPage 'orders'}}active{{/ifEquals}}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="menu-text">Orders</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/categories" class="{{#ifEquals currentPage 'categories'}}active{{/ifEquals}}">
+                    <i class="fas fa-tags"></i>
+                    <span class="menu-text">Categories</span>
+                </a>
+            </li>
+            <li style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <a href="/admin/logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="menu-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+        <!-- Top Bar -->
+        <div class="admin-topbar">
+            <h1 class="topbar-title">{{title}}</h1>
+            <div class="topbar-actions">
+                <div class="admin-user">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Welcome, Admin</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="admin-content">
+            {{{body}}}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('adminSidebar').classList.toggle('show');
+        }
+
+        // Add mobile toggle button for small screens
+        if (window.innerWidth <= 768) {
+            const topbar = document.querySelector('.admin-topbar');
+            const toggleBtn = document.createElement('button');
+            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            toggleBtn.className = 'btn btn-outline-secondary d-md-none';
+            toggleBtn.onclick = toggleSidebar;
+            topbar.insertBefore(toggleBtn, topbar.firstChild);
+        }
+    </script>
+</body>
+</html>

@@ -8,17 +8,32 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/admin">All products<span class="sr-only">(current)</span></a>
+                    <li class="nav-item">
+                        <a class="nav-link {{#ifEquals currentPage 'dashboard'}}active{{/ifEquals}}" href="/admin/dashboard">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">All Orders</a>
-                      
+                        <a class="nav-link {{#ifEquals currentPage 'products'}}active{{/ifEquals}}" href="/admin/products">Products</a>
                     </li>
-                         <li class="nav-item">
-                        <a class="nav-link" href="#">All Users</a>
+                    <li class="nav-item">
+                        <a class="nav-link {{#ifEquals currentPage 'orders'}}active{{/ifEquals}}" href="/admin/orders">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{#ifEquals currentPage 'users'}}active{{/ifEquals}}" href="/admin/users">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{#ifEquals currentPage 'categories'}}active{{/ifEquals}}" href="/admin/categories">Categories</a>
                     </li>
                 </ul>
+                <div class="admin-user-menu">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="adminDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Admin
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminDropdown">
+                            <a class="dropdown-item" href="/admin/logout">Logout</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
@@ -33,6 +48,24 @@
         .navbar {
             background-color: #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+        }
+
+        .navbar-nav .nav-link.active {
+            color: #007bff !important;
+            font-weight: 600;
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(0, 123, 255, 0.05);
         }
     </style>
     

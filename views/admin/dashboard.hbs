@@ -1,0 +1,316 @@
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2 class="dashboard-title">Admin Dashboard</h2>
+        <p class="dashboard-subtitle">Welcome back! Here's an overview of your store.</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row stats-cards">
+        <div class="col-md-4 mb-4">
+            <div class="stats-card users-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3 class="card-number">{{stats.users}}</h3>
+                        <p class="card-label">Total Users</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin/users" class="card-link">
+                        <span>View All Users</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="stats-card products-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3 class="card-number">{{stats.products}}</h3>
+                        <p class="card-label">Total Products</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin" class="card-link">
+                        <span>Manage Products</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="stats-card orders-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3 class="card-number">{{stats.orders}}</h3>
+                        <p class="card-label">Total Orders</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin/orders" class="card-link">
+                        <span>View All Orders</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row quick-actions">
+        <div class="col-12">
+            <div class="quick-actions-card">
+                <div class="card-header">
+                    <h4 class="section-title">Quick Actions</h4>
+                </div>
+                <div class="actions-grid">
+                    <a href="/admin" class="action-item">
+                        <div class="action-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <span>Add Product</span>
+                    </a>
+                    <a href="/admin/categories" class="action-item">
+                        <div class="action-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <span>Manage Categories</span>
+                    </a>
+                    <a href="/admin/orders" class="action-item">
+                        <div class="action-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <span>Process Orders</span>
+                    </a>
+                    <a href="/admin/users" class="action-item">
+                        <div class="action-icon">
+                            <i class="fas fa-user-cog"></i>
+                        </div>
+                        <span>Manage Users</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        padding: 20px;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dashboard-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        color: #718096;
+        margin: 0;
+    }
+
+    .stats-cards {
+        margin-bottom: 40px;
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        color: white;
+        transition: all 0.3s ease;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(30px, -30px);
+    }
+
+    .users-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .products-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .orders-card {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        padding: 25px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .card-icon {
+        font-size: 3rem;
+        margin-right: 20px;
+        opacity: 0.9;
+    }
+
+    .card-info h3 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .card-label {
+        font-size: 1rem;
+        margin: 5px 0 0 0;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+
+    .card-footer {
+        padding: 0 25px 25px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .card-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 10px 15px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .card-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        transform: translateX(5px);
+    }
+
+    .quick-actions-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .quick-actions-card .card-header {
+        background: #f8f9fa;
+        padding: 25px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 25px;
+    }
+
+    .action-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #2d3748;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .action-item:hover {
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        border-color: #667eea;
+    }
+
+    .action-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .action-item span {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 2rem;
+        }
+        
+        .stats-cards .col-md-4 {
+            margin-bottom: 20px;
+        }
+        
+        .actions-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .action-item {
+            padding: 20px 15px;
+        }
+    }
+</style>

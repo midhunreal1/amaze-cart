@@ -1,0 +1,453 @@
+<div class="table-container">
+    <div class="table-header">
+        <h2 class="table-title">Orders Management</h2>
+        <div class="table-actions">
+            <button class="btn btn-admin-primary" onclick="refreshOrdersTable()">
+                <i class="fas fa-refresh"></i>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- TanStack Table Container -->
+    <div id="ordersTableContainer">
+        <table class="tanstack-table" id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer Name</th>
+                    <th>Customer Email</th>
+                    <th>Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                {{#each orders}}
+                <tr>
+                    <td>
+                        <span class="order-id">#{{this._id}}</span>
+                    </td>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-name">{{this.user.Name}}</div>
+                            <div class="delivery-name text-muted">{{this.deliveryDetails.address}}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="customer-email">{{this.user.Email}}</div>
+                    </td>
+                    <td>{{formatDate this.date}}</td>
+                    <td>{{formatPrice this.totalAmount}}</td>
+                    <td>
+                        <span class="badge badge-{{this.status}}">
+                            {{#ifEquals this.status 'placed'}}Placed{{/ifEquals}}
+                            {{#ifEquals this.status 'shipped'}}Shipped{{/ifEquals}}
+                            {{#ifEquals this.status 'delivered'}}Delivered{{/ifEquals}}
+                            {{#ifEquals this.status 'cancelled'}}Cancelled{{/ifEquals}}
+                        </span>
+                    </td>
+                    <td>
+                        {{#ifEquals this.paymentMethod 'COD'}}
+                        <span class="badge badge-warning">
+                            {{this.paymentMethod}}
+                        </span>
+                        {{else}}
+                        <span class="badge badge-success">
+                            {{this.paymentMethod}}
+                        </span>
+                        {{/ifEquals}}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-admin-success" onclick="viewOrder('{{this._id}}')" data-bs-toggle="modal" data-bs-target="#orderModal">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {{#ifEquals this.status 'delivered'}}
+                        {{else}}
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" onclick="updateOrderStatus('{{this._id}}', 'placed')">Mark as Placed</a></li>
+                                <li><a class="dropdown-item" onclick="updateOrderStatus('{{this._id}}', 'shipped')">Mark as Shipped</a></li>
+                                <li><a class="dropdown-item" onclick="updateOrderStatus('{{this._id}}', 'delivered')">Mark as Delivered</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" onclick="updateOrderStatus('{{this._id}}', 'cancelled')">Cancel Order</a></li>
+                            </ul>
+                        </div>
+                        {{/ifEquals}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderModalLabel">Order Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Order Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="order-info">
+                                    <div class="info-row">
+                                        <span class="info-label">Order ID:</span>
+                                        <span class="info-value" id="orderIdDetails">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Date:</span>
+                                        <span class="info-value" id="orderDateDetails">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Status:</span>
+                                        <span class="info-value">
+                                            <span class="badge" id="orderStatusBadge">-</span>
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Payment Method:</span>
+                                        <span class="info-value" id="orderPaymentDetails">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Total Amount:</span>
+                                        <span class="info-value" id="orderTotalDetails">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Delivery Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="delivery-info">
+                                    <div class="info-row">
+                                        <span class="info-label">Name:</span>
+                                        <span class="info-value" id="deliveryNameDetails">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Mobile:</span>
+                                        <span class="info-value" id="deliveryMobileDetails">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Address:</span>
+                                        <span class="info-value" id="deliveryAddressDetails">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">City:</span>
+                                        <span class="info-value" id="deliveryCityDetails">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Pincode:</span>
+                                        <span class="info-value" id="deliveryPincodeDetails">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Order Items</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="orderItemsTable">
+                                            <!-- Order items will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="updateStatusBtn" onclick="showStatusUpdate()">Update Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentOrderId = null;
+
+    // View order details
+    async function viewOrder(orderId) {
+        try {
+            const response = await fetch(`/admin/api/order/${orderId}`);
+            const order = await response.json();
+            
+            if (order) {
+                currentOrderId = order._id;
+                
+                // Order Information
+                document.getElementById('orderIdDetails').textContent = '#' + order._id;
+                document.getElementById('orderDateDetails').textContent = 
+                    order.date ? new Date(order.date).toLocaleDateString() : '-';
+                document.getElementById('orderPaymentDetails').textContent = order.paymentMethod || '-';
+                document.getElementById('orderTotalDetails').textContent = 
+                    order.totalAmount ? '₹' + order.totalAmount.toLocaleString() : '-';
+                
+                // Status Badge
+                const statusBadge = document.getElementById('orderStatusBadge');
+                statusBadge.textContent = order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : '-';
+                statusBadge.className = `badge badge-${order.status}`;
+                
+                // Delivery Information
+                if (order.deliveryDetails) {
+                    document.getElementById('deliveryNameDetails').textContent = order.deliveryDetails.name || '-';
+                    document.getElementById('deliveryMobileDetails').textContent = order.deliveryDetails.mobile || '-';
+                    document.getElementById('deliveryAddressDetails').textContent = order.deliveryDetails.address || '-';
+                    document.getElementById('deliveryCityDetails').textContent = order.deliveryDetails.city || '-';
+                    document.getElementById('deliveryPincodeDetails').textContent = order.deliveryDetails.pincode || '-';
+                }
+                
+                // Order Items
+                const itemsTable = document.getElementById('orderItemsTable');
+                itemsTable.innerHTML = '';
+                if (order.products && order.products.length > 0) {
+                    order.products.forEach(item => {
+                        const row = `
+                            <tr>
+                                <td>${item.item.Name || 'Unknown Product'}</td>
+                                <td>${item.quantity || 1}</td>
+                                <td>₹${item.item.Price ? item.item.Price.toLocaleString() : '0'}</td>
+                                <td>₹${item.item.Price && item.quantity ? (item.item.Price * item.quantity).toLocaleString() : '0'}</td>
+                            </tr>
+                        `;
+                        itemsTable.innerHTML += row;
+                    });
+                } else {
+                    itemsTable.innerHTML = '<tr><td colspan="4" class="text-center">No items found</td></tr>';
+                }
+            }
+        } catch (error) {
+            console.error('Error loading order:', error);
+            alert('Error loading order data');
+        }
+    }
+
+    // Update order status
+    async function updateOrderStatus(orderId, newStatus) {
+        const statusText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+        if (confirm(`Are you sure you want to mark this order as "${statusText}"?`)) {
+            try {
+                const response = await fetch(`/admin/api/order/${orderId}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Error updating order status');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating order status');
+            }
+        }
+    }
+
+    // Show status update options (you can expand this)
+    function showStatusUpdate() {
+        if (currentOrderId) {
+            // Simple implementation - you can make this more sophisticated
+            const statuses = ['placed', 'shipped', 'delivered', 'cancelled'];
+            const selectedStatus = prompt('Enter new status: ' + statuses.join(', '));
+            if (selectedStatus && statuses.includes(selectedStatus.toLowerCase())) {
+                updateOrderStatus(currentOrderId, selectedStatus.toLowerCase());
+            }
+        }
+    }
+
+    // Refresh orders table
+    function refreshOrdersTable() {
+        location.reload();
+    }
+
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+
+<style>
+    .order-id {
+        font-family: monospace;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .badge-placed {
+        background: linear-gradient(45deg, #17a2b8, #138496);
+        color: white;
+    }
+
+    .badge-shipped {
+        background: linear-gradient(45deg, #ffc107, #ffab00);
+        color: white;
+    }
+
+    .badge-delivered {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .badge-cancelled {
+        background: linear-gradient(45deg, #dc3545, #e74c3c);
+        color: white;
+    }
+
+    .badge-warning {
+        background: linear-gradient(45deg, #ffc107, #ffab00);
+        color: white;
+    }
+
+    .badge-success {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .card {
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 8px 8px 0 0;
+        padding: 15px 20px;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 120px;
+    }
+
+    .info-value {
+        color: #6c757d;
+        text-align: right;
+        flex: 1;
+    }
+
+    .table-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tanstack-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .tanstack-table tbody tr:hover {
+        background: #f8f9fa;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .modal-xl {
+        max-width: 1200px;
+    }
+
+    .dropdown-menu {
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .dropdown-item {
+        padding: 8px 8px;
+        transition: all 0.3s ease;
+    }
+
+    .dropdown-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .customer-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .customer-name {
+        font-weight: 600;
+        color: #2d3748;
+    }
+    
+    .delivery-name {
+        font-size: 0.875rem;
+        color: #718096;
+    }
+    
+    .customer-email {
+        color: #4299e1;
+        font-size: 0.9rem;
+    }
+</style>

@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 const productHelpers= require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
-const { response } = require('../app');
 
 
 /* GET home page. */
@@ -20,29 +19,52 @@ router.get('/', async function(req, res, next) {
     cartCount=await userHelpers.getCartCount(req.session.user._id);
   }
 
-  productHelpers.getAllProducts().then((products)=>{
+  try {
+    const [products, categories] = await Promise.all([
+      productHelpers.getAllProducts(),
+      productHelpers.getAllCategories()
+    ]);
+    
     console.log(products);
-    res.render('user/view-products',{products,user,cartCount})
-  })
+    res.render('user/view-products',{products, categories, user, cartCount})
+  } catch (error) {
+    console.error('Error loading data:', error);
+    res.render('user/view-products',{products: [], categories: [], user, cartCount})
+  }
 });
 router.get('/login',(req,res)=>{
   if(req.session.user){
     res.redirect('/')
   }
-  else{res.render('user/login',{loginErr:req.session.LoginErr})
-  req.session.LoginErr = false
-}
+  else{
+    res.render('user/login',{
+      layout: 'auth-layout', 
+      title: 'Login', 
+      loginErr: req.session.LoginErr,
+      signupSuccess: req.session.signupSuccess
+    });
+    req.session.LoginErr = false;
+    req.session.signupSuccess = false;
+  }
 })
 
 router.get('/signup',(req,res)=>{
-  res.render('user/signup')
+  res.render('user/signup',{layout: 'auth-layout', title: 'Sign Up'})
 })
 router.post('/signup',(req,res)=>{
-  userHelpers.doSignup(req.body).then((response)=>{
-    console.log(response);
-    req.session.LoggedIn = true;
-    req.session.user = response;
-    res.redirect('/')
+  console.log('Signup attempt:', req.body);
+  userHelpers.doSignup(req.body).then((newUser)=>{
+    console.log('Signup successful:', newUser);
+    // Redirect to login page with success message instead of auto-login
+    req.session.signupSuccess = 'Account created successfully! Please login to continue.';
+    res.redirect('/login');
+  }).catch((error) => {
+    console.error('Signup failed:', error);
+    res.render('user/signup', {
+      layout: 'auth-layout', 
+      title: 'Sign Up',
+      signupErr: 'Registration failed. Please try again.'
+    });
   })
 })
 
@@ -117,33 +139,41 @@ router.get('/order-success',(req,res)=>{
   res.render('user/order-success',{user:req.session.user})
 })
 
-router.get('/orders',async(req,res)=>{
+router.get('/orders', verifyLogin, async(req,res)=>{
   let orders = await userHelpers.getUserOrders(req.session.user._id)
   res.render('user/orders',{user:req.session.user,orders})
 })
 
-router.get('/view-order-products/:id',async(req,res)=>{
+router.get('/view-order-products/:id', verifyLogin, async(req,res)=>{
   let products = await userHelpers.getOrderProducts(req.params.id)
   res.render('user/view-order-products',{user:req.session.user,products})
 })
 
 router.post('/verify-payment',(req,res)=>{
-  console.log(req.body);
+  console.log('Verify payment request:', req.body);
   userHelpers.verifyPayment(req.body).then(()=>{
-    userHelpers.changePaymentStatus(req.body['order[receipt]']).then(()=>{
+    // Get orderId from order object
+    const orderId = req.body.order?.receipt || req.body['order[receipt]'];
+    console.log('Order ID for status update:', orderId);
+
+    userHelpers.changePaymentStatus(orderId).then(()=>{
       console.log("payment successful");
       res.json({status:true})
+    }).catch((err) => {
+      console.error('Error changing payment status:', err);
+      res.json({status:false, errMsg: 'Failed to update payment status'});
     })
   }).catch((err)=>{
-    console.log(err);
-    res.json({status:false,errMsg:''});
+    console.error('Payment verification error:', err);
+    res.json({status:false,errMsg:'Payment verification failed'});
   })
 })
-router.get('/remove-product/:id', (req, res) => {
+router.get('/remove-product/:id', verifyLogin, (req, res) => {
   let proId=req.params.id;
-  console.log(proId);
-  userHelpers.removeProduct(proId).then((response)=>{
-    res.redirect('/cart')
+  let userId=req.session.user._id;
+  console.log(proId, userId);
+  userHelpers.removeProduct(proId, userId).then((response)=>{
+    res.json({status: true})
   })
 })
 module.exports = router;

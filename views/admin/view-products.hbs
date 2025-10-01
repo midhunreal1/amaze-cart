@@ -1,118 +1,292 @@
-<section>
-    <div class="container">
-        <div class="row mt-4 mb-2">
-            <a href="/admin/add-product" class="btn btn-success ml-auto">Add Product</a>
+<div class="table-container">
+    <div class="table-header">
+        <h2 class="table-title">Products Management</h2>
+        <div class="table-actions">
+            <button class="btn btn-admin-primary" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openProductModal()">
+                <i class="fas fa-plus"></i>
+                Add Product
+            </button>
         </div>
-        <table class="table mt-5" id="productsTable">
-  <thead>
-    <tr>
-      <th scope="col">No</th>
-      <th scope="col">Title</th>
-      <th scope="col">Category</th>
-      <th scope="col">Description</th>
-      <th scope="col">Price</th>
-      <th>Image</th>
-      <th>Options</th>
-    </tr>
-  </thead>
-<tbody>
-    {{#each products}}
-    <tr>
-      <th scope="row">{{this.index}}</th>
-      <td>{{this.Name}}</td>
-      <td>{{this.Category}}</td>
-      <td>{{this.Description}}</td>
-      <td>{{this.Price}}</td>
-    <td><img src="/product-images/{{this._id}}.jpg" alt="" style="width: 50px; height:50px;"></td>
-     <td><a href="/admin/edit-product/{{this._id}}" class="btn btn-primary">Edit</a>
-    <a href="/admin/delete-product/{{this._id}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete {{this.Name}}?')">Delete</a></td>
-    </tr>
-    {{/each}}
-  </tbody>
-</table>
+    </div>
+
+    <!-- TanStack Table Container -->
+    <div id="productsTableContainer">
+        <table class="tanstack-table" id="productsTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="productsTableBody">
+                {{#each products}}
+                <tr>
+                    <td>{{this.index}}</td>
+                    <td>
+                        <img src="/product-images/{{this._id}}.jpg" alt="{{this.Name}}" 
+                             onerror="this.src='https://placehold.co/600x400/png'" 
+                             class="product-image">
+                    </td>
+                    <td>{{this.Name}}</td>
+                    <td>{{this.Category}}</td>
+                    <td>₹{{this.Price}}</td>
+                    <td>{{truncate this.Description 50}}</td>
+                    <td>
+                        <button class="btn btn-sm btn-admin-success" onclick="editProduct('{{this._id}}')" data-bs-toggle="modal" data-bs-target="#productModal">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-admin-danger" onclick="deleteProduct('{{this._id}}', '{{this.Name}}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
 </div>
-</section>
+
+<!-- Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Add Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="productForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="productId" name="productId">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productName" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="productName" name="Name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productCategory" class="form-label">Category</label>
+                                <select class="form-control" id="productCategory" name="Category" required>
+                                    <option value="">Select Category</option>
+                                    {{#each categories}}
+                                    <option value="{{this.name}}">{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productPrice" class="form-label">Price (₹)</label>
+                                <input type="number" class="form-control" id="productPrice" name="Price" required min="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productImage" class="form-label">Product Image</label>
+                                <input type="file" class="form-control" id="productImage" name="Image" accept="image/*">
+                                <small class="text-muted">Leave empty to keep existing image when editing</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="productDescription" name="Description" rows="4" required></textarea>
+                    </div>
+
+                    <div id="currentImagePreview" class="mt-3" style="display: none;">
+                        <label class="form-label">Current Image:</label>
+                        <br>
+                        <img id="currentImage" src="" alt="Current product image" style="max-width: 200px; height: auto; border-radius: 8px;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-admin-primary" id="saveProductBtn">
+                        <span class="spinner" id="saveSpinner" style="display: none;"></span>
+                        <span id="saveText">Save Product</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-  $(function(){
-    $('#productsTable').DataTable();
-  })
+    let isEditMode = false;
+    let currentEditId = null;
+
+    // Open product modal for adding new product
+    function openProductModal(productId = null) {
+        isEditMode = !!productId;
+        currentEditId = productId;
+        
+        const modal = document.getElementById('productModal');
+        const modalTitle = document.getElementById('productModalLabel');
+        const form = document.getElementById('productForm');
+        const saveBtn = document.getElementById('saveText');
+        const currentImagePreview = document.getElementById('currentImagePreview');
+        
+        // Reset form
+        form.reset();
+        
+        if (isEditMode) {
+            modalTitle.textContent = 'Edit Product';
+            saveBtn.textContent = 'Update Product';
+            // Load product data would go here - for now we'll handle it client-side
+            currentImagePreview.style.display = 'block';
+        } else {
+            modalTitle.textContent = 'Add Product';
+            saveBtn.textContent = 'Save Product';
+            currentImagePreview.style.display = 'none';
+        }
+    }
+
+    // Edit product function
+    async function editProduct(productId) {
+        try {
+            console.log('Fetching product with ID:', productId);
+            const response = await fetch(`/admin/api/product/${productId}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const product = await response.json();
+            console.log('Product data received:', product);
+            
+            if (product) {
+                // Store product data for modal population
+                window.currentProductData = product;
+                
+                // Open the modal - this will trigger population
+                openProductModal(productId);
+            } else {
+                alert('Product not found');
+            }
+        } catch (error) {
+            console.error('Error loading product:', error);
+            alert('Error loading product data: ' + error.message);
+        }
+    }
+
+    // Delete product function
+    function deleteProduct(productId, productName) {
+        if (confirm(`Are you sure you want to delete "${productName}"?`)) {
+            fetch(`/admin/delete-product/${productId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error deleting product');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting product');
+            });
+        }
+    }
+
+    // Handle form submission
+    document.getElementById('productForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const saveSpinner = document.getElementById('saveSpinner');
+        const saveText = document.getElementById('saveText');
+        const saveBtn = document.getElementById('saveProductBtn');
+        
+        // Show loading
+        saveSpinner.style.display = 'inline-block';
+        saveText.textContent = isEditMode ? 'Updating...' : 'Saving...';
+        saveBtn.disabled = true;
+        
+        const formData = new FormData(this);
+        const url = isEditMode ? `/admin/edit-product/${currentEditId}` : '/admin/add-product';
+        const method = 'POST';
+        
+        try {
+            const response = await fetch(url, {
+                method: method,
+                body: formData
+            });
+            
+            if (response.ok) {
+                // Close modal and reload page
+                bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+                location.reload();
+            } else {
+                throw new Error('Failed to save product');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error saving product. Please try again.');
+        } finally {
+            // Reset loading state
+            saveSpinner.style.display = 'none';
+            saveText.textContent = isEditMode ? 'Update Product' : 'Save Product';
+            saveBtn.disabled = false;
+        }
+    });
+
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
 </script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 0;
-        }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-        }
+<style>
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-        .mt-4 {
-            margin-top: 20px;
-        }
+    .table-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
 
-        .mt-5 {
-            margin-top: 30px;
-        }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+    .tanstack-table tbody tr {
+        transition: all 0.3s ease;
+    }
 
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
+    .tanstack-table tbody tr:hover {
+        background: #f8f9fa;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
 
-        .table th {
-            background-color: #f5f5f5;
-        }
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
 
-        .table img {
-            width: 50px;
-            height: 50px;
-        }
+    .modal-lg {
+        max-width: 800px;
+    }
 
-        .btn {
-            display: inline-block;
-            padding: 8px 16px;
-            margin: 2px;
-            font-size: 14px;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-
-        .btn-success {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            color: #fff;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: #fff;
-        }
-
-        .ml-auto {
-            margin-left: auto;
-        }
-
-        .row:after {
-            content: "";
-            clear: both;
-            display: table;
-        }
+    #currentImagePreview img {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 </style>

@@ -1,0 +1,249 @@
+<div class="table-container">
+    <div class="table-header">
+        <h2 class="table-title">Categories Management</h2>
+        <div class="table-actions">
+            <button class="btn btn-admin-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="openCategoryModal()">
+                <i class="fas fa-plus"></i>
+                Add Category
+            </button>
+        </div>
+    </div>
+
+    <!-- Categories Table -->
+    <div id="categoriesTableContainer">
+        <table class="tanstack-table" id="categoriesTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="categoriesTableBody">
+                {{#each categories}}
+                <tr>
+                    <td>{{this.index}}</td>
+                    <td>
+                        <img src="/category-images/{{this._id}}.jpg" alt="{{this.name}}" 
+                             onerror="this.src='https://placehold.co/50x50?text={{this.name}}'" 
+                             class="category-image">
+                    </td>
+                    <td>{{this.name}}</td>
+                    <td>{{truncate this.description 100}}</td>
+                    <td>{{formatDate this.createdAt}}</td>
+                    <td>
+                        <button class="btn btn-sm btn-admin-success" onclick="editCategory('{{this._id}}')" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-admin-danger" onclick="deleteCategory('{{this._id}}', '{{this.name}}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel">Add Category</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="categoryForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="categoryId" name="categoryId">
+                    
+                    <div class="form-group">
+                        <label for="categoryName" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="categoryName" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="categoryDescription" name="description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoryImage" class="form-label">Category Image</label>
+                        <input type="file" class="form-control" id="categoryImage" name="image" accept="image/*">
+                        <small class="text-muted">Leave empty to keep existing image when editing</small>
+                    </div>
+
+                    <div id="currentImagePreview" class="mt-3" style="display: none;">
+                        <label class="form-label">Current Image:</label>
+                        <br>
+                        <img id="currentImage" src="" alt="Current category image" style="max-width: 200px; height: auto; border-radius: 8px;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-admin-primary" id="saveCategoryBtn">
+                        <span class="spinner" id="saveSpinner" style="display: none;"></span>
+                        <span id="saveText">Save Category</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isEditMode = false;
+    let currentEditId = null;
+
+    // Open category modal for adding new category
+    function openCategoryModal(categoryId = null) {
+        isEditMode = !!categoryId;
+        currentEditId = categoryId;
+        
+        const modal = document.getElementById('categoryModal');
+        const modalTitle = document.getElementById('categoryModalLabel');
+        const form = document.getElementById('categoryForm');
+        const saveBtn = document.getElementById('saveText');
+        
+        // Reset form
+        form.reset();
+        
+        if (isEditMode) {
+            modalTitle.textContent = 'Edit Category';
+            saveBtn.textContent = 'Update Category';
+        } else {
+            modalTitle.textContent = 'Add Category';
+            saveBtn.textContent = 'Save Category';
+        }
+    }
+
+    // Edit category function
+    async function editCategory(categoryId) {
+        try {
+            const response = await fetch(`/admin/api/category/${categoryId}`);
+            const category = await response.json();
+            
+            if (category) {
+                document.getElementById('categoryId').value = category._id;
+                document.getElementById('categoryName').value = category.name;
+                document.getElementById('categoryDescription').value = category.description;
+                
+                // Show current image
+                const currentImage = document.getElementById('currentImage');
+                currentImage.src = `/category-images/${category._id}.jpg`;
+                document.getElementById('currentImagePreview').style.display = 'block';
+                
+                openCategoryModal(categoryId);
+            }
+        } catch (error) {
+            console.error('Error loading category:', error);
+            alert('Error loading category data');
+        }
+    }
+
+    // Delete category function
+    function deleteCategory(categoryId, categoryName) {
+        if (confirm(`Are you sure you want to delete "${categoryName}"?`)) {
+            fetch(`/admin/delete-category/${categoryId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error deleting category');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting category');
+            });
+        }
+    }
+
+    // Handle form submission
+    document.getElementById('categoryForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const saveSpinner = document.getElementById('saveSpinner');
+        const saveText = document.getElementById('saveText');
+        const saveBtn = document.getElementById('saveCategoryBtn');
+        
+        // Show loading
+        saveSpinner.style.display = 'inline-block';
+        saveText.textContent = isEditMode ? 'Updating...' : 'Saving...';
+        saveBtn.disabled = true;
+        
+        const formData = new FormData(this);
+        const url = isEditMode ? `/admin/edit-category/${currentEditId}` : '/admin/add-category';
+        const method = 'POST';
+        
+        try {
+            const response = await fetch(url, {
+                method: method,
+                body: formData
+            });
+            
+            if (response.ok) {
+                // Close modal and reload page
+                bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+                location.reload();
+            } else {
+                throw new Error('Failed to save category');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error saving category. Please try again.');
+        } finally {
+            // Reset loading state
+            saveSpinner.style.display = 'none';
+            saveText.textContent = isEditMode ? 'Update Category' : 'Save Category';
+            saveBtn.disabled = false;
+        }
+    });
+
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+
+<style>
+    .table-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tanstack-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .tanstack-table tbody tr:hover {
+        background: #f8f9fa;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .category-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>

@@ -1,39 +1,361 @@
-
-    <div class="row">
-      <div class="col-md-6 m-auto">
-        <div class="container mt-5 pl-5">
-        <h1 class="text-center">Login</h1>
-        <form action="/login" method="post">
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">
+                    <h1 class="brand-name">AmazeCart</h1>
+                </div>
+                <h2 class="login-title">Welcome Back!</h2>
+                <p class="login-subtitle">Sign in to your account to continue shopping</p>
+            </div>
+            
+            <div class="login-form-container">
+                {{#if signupSuccess}}
+                <div class="success-alert">
+                    <span class="success-icon">✅</span>
+                    {{signupSuccess}}
+                </div>
+                {{/if}}
+                
+                {{#if loginErr}}
+                <div class="error-alert">
+                    <span class="error-icon">⚠️</span>
+                    {{loginErr}}
+                </div>
+                {{/if}}
+                
+                <form action="/login" method="post" class="login-form">
+                    <div class="form-group">
+                        <label for="Email" class="form-label">
+                            <span class="label-icon">📧</span>
+                            Email Address
+                        </label>
+                        <input
+                            type="email"
+                            class="form-input"
+                            id="Email" 
+                            name="Email"
+                            placeholder="Enter your email address"
+                            required
+                        />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="Password" class="form-label">
+                            <span class="label-icon">🔒</span>
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            class="form-input"
+                            id="Password"
+                            name="Password"
+                            placeholder="Enter your password"
+                            required
+                        />
+                    </div>
+                    
+                    <button type="submit" class="login-btn">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                </form>
+                
+                <div class="login-footer">
+                    <p class="signup-text">
+                        Don't have an account? 
+                        <a href="/signup" class="signup-link">Create one here</a>
+                    </p>
+                    
+                
+                </div>
+            </div>
+        </div>
         
-        {{#if loginErr}}
-        <div class="alert alert-danger" role="alert">
-        {{loginErr}}
-        </div>
-        {{/if}}
-        <div class="form-group">
-          <label for="Email">Email address</label>
-          <input
-            type="email"
-            class="form-control"
-            id="Email" name="Email"
-            aria-describedby="emailHelp"
-            placeholder="Enter email"
-          />
-        </div>
-        <div class="form-group">
-          <label for="exampleInputPassword1">Password</label>
-          <input
-            type="password"
-            class="form-control"
-            id="exampleInputPassword1"
-            placeholder="Password"
-            name="Password"
-          />
-        </div>
-        <div class="form-group ">
-          <button type="submit" class="btn btn-primary float-right">Login</button>
-        </div>
-        </form>
+        <div class="login-illustration">
+            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=800&fit=crop" alt="Shopping illustration">
         </div>
     </div>
-    </div>
+</div>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.login-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    min-height: 600px;
+}
+
+.login-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideInLeft 0.8s ease;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.brand-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
+
+.login-title {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.login-subtitle {
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.success-alert {
+    background: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 25px;
+    color: #1d4ed8;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    animation: slideInDown 0.5s ease;
+}
+
+.success-icon {
+    font-size: 1.2rem;
+}
+
+.error-alert {
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 25px;
+    color: #c33;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.error-icon {
+    font-size: 1.2rem;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.label-icon {
+    font-size: 1rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.login-btn {
+    width: 100%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 18px 30px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.login-btn:hover .btn-icon {
+    transform: translateX(5px);
+}
+
+.login-footer {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.signup-text {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.signup-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.signup-link:hover {
+    color: #764ba2;
+}
+
+.demo-credentials {
+    background: #f8f9ff;
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.demo-credentials h4 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.demo-credentials p {
+    color: #666;
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+.login-illustration {
+    text-align: center;
+    animation: slideInRight 0.8s ease;
+}
+
+.login-illustration img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .login-card {
+        padding: 30px 25px;
+    }
+    
+    .brand-name {
+        font-size: 2rem;
+    }
+    
+    .login-title {
+        font-size: 1.5rem;
+    }
+    
+    .login-illustration {
+        order: -1;
+    }
+    
+    .login-illustration img {
+        max-width: 300px;
+    }
+}
+</style>

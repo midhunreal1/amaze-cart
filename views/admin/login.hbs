@@ -1,86 +1,72 @@
-<div class="signup-page">
-    <div class="signup-container">
-        <div class="signup-card">
-            <div class="signup-header">
-                <div class="signup-logo">
+<div class="admin-login-page">
+    <div class="admin-login-container">
+        <div class="admin-login-card">
+            <div class="admin-login-header">
+                <div class="admin-logo">
                     <h1 class="brand-name">AmazeCart</h1>
+                    <span class="admin-badge">Admin Panel</span>
                 </div>
-                <h2 class="signup-title">Create Account</h2>
-                <p class="signup-subtitle">Join us and start your shopping journey</p>
+                <h2 class="admin-login-title">Admin Login</h2>
+                <p class="admin-login-subtitle">Access the admin dashboard to manage your store</p>
             </div>
             
-            <div class="signup-form-container">
-                {{#if signupErr}}
+            <div class="admin-login-form-container">
+                {{#if loginErr}}
                 <div class="error-alert">
                     <span class="error-icon">⚠️</span>
-                    {{signupErr}}
+                    {{loginErr}}
                 </div>
                 {{/if}}
                 
-                <form action="/signup" method="post" class="signup-form">
+                <form action="/admin/login" method="post" class="admin-login-form">
                     <div class="form-group">
-                        <label for="Name" class="form-label">
+                        <label for="email" class="form-label">
                             <span class="label-icon">👤</span>
-                            Full Name
-                        </label>
-                        <input
-                            type="text"
-                            class="form-input"
-                            id="Name"
-                            name="Name"
-                            placeholder="Enter your full name"
-                            required
-                        />
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="Email" class="form-label">
-                            <span class="label-icon">📧</span>
-                            Email Address
+                            Admin Email
                         </label>
                         <input
                             type="email"
                             class="form-input"
-                            id="Email" 
+                            id="email" 
                             name="Email"
-                            placeholder="Enter your email address"
+                            placeholder="Enter admin email"
                             required
                         />
-                        <small class="form-help">We'll never share your email with anyone else.</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="Password" class="form-label">
+                        <label for="password" class="form-label">
                             <span class="label-icon">🔒</span>
                             Password
                         </label>
                         <input
                             type="password"
                             class="form-input"
-                            id="Password"
+                            id="password"
                             name="Password"
-                            placeholder="Choose a strong password"
+                            placeholder="Enter admin password"
                             required
                         />
                     </div>
                     
-                    <button type="submit" class="signup-btn">
-                        <span class="btn-text">Create Account</span>
-                        <span class="btn-icon">✓</span>
+                    <button type="submit" class="admin-login-btn">
+                        <span class="btn-text">Access Dashboard</span>
+                        <span class="btn-icon">🚀</span>
                     </button>
                 </form>
                 
-                <div class="signup-footer">
-                    <p class="login-text">
-                        Already have an account? 
-                        <a href="/login" class="login-link">Sign in here</a>
+                <div class="admin-login-footer">
+             
+                    
+                    <p class="back-to-store">
+                        <a href="/" class="store-link">← Back to Store</a>
                     </p>
                 </div>
             </div>
         </div>
         
-        <div class="signup-illustration">
-            <img src="https://images.unsplash.com/photo-1556740758-90de374c12ad?w=600&h=800&fit=crop" alt="Shopping illustration">
+        <div class="admin-illustration">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=800&fit=crop" alt="Admin dashboard illustration">
         </div>
     </div>
 </div>
@@ -94,21 +80,21 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background: linear-gradient(135deg, #2c1810 0%, #8b4513 50%, #d2691e 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.signup-page {
+.admin-login-page {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-.signup-container {
+.admin-login-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 60px;
@@ -116,44 +102,55 @@ body {
     min-height: 600px;
 }
 
-.signup-card {
+.admin-login-card {
     background: white;
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     animation: slideInLeft 0.8s ease;
 }
 
-.signup-header {
+.admin-login-header {
     text-align: center;
     margin-bottom: 40px;
+}
+
+.admin-logo {
+    margin-bottom: 20px;
 }
 
 .brand-name {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(45deg, #d2691e, #8b4513);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
-.signup-title {
+.admin-badge {
+    background: linear-gradient(45deg, #d2691e, #8b4513);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-login-title {
     font-size: 1.8rem;
     color: #333;
     margin-bottom: 10px;
     font-weight: 600;
 }
 
-.signup-subtitle {
+.admin-login-subtitle {
     color: #666;
     font-size: 1rem;
     line-height: 1.5;
-}
-
-.form-group {
-    margin-bottom: 25px;
 }
 
 .error-alert {
@@ -171,6 +168,10 @@ body {
 
 .error-icon {
     font-size: 1.2rem;
+}
+
+.form-group {
+    margin-bottom: 25px;
 }
 
 .form-label {
@@ -199,21 +200,14 @@ body {
 
 .form-input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #d2691e;
     background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
 }
 
-.form-help {
-    font-size: 0.85rem;
-    color: #666;
-    margin-top: 5px;
-    display: block;
-}
-
-.signup-btn {
+.admin-login-btn {
     width: 100%;
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(45deg, #d2691e, #8b4513);
     color: white;
     border: none;
     padding: 18px 30px;
@@ -228,9 +222,9 @@ body {
     margin-top: 10px;
 }
 
-.signup-btn:hover {
+.admin-login-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 10px 25px rgba(210, 105, 30, 0.4);
 }
 
 .btn-icon {
@@ -238,37 +232,56 @@ body {
     transition: transform 0.3s ease;
 }
 
-.signup-btn:hover .btn-icon {
-    transform: scale(1.2);
+.admin-login-btn:hover .btn-icon {
+    transform: translateX(5px);
 }
 
-.signup-footer {
+.admin-login-footer {
     margin-top: 30px;
     text-align: center;
 }
 
-.login-text {
-    color: #666;
-    margin-bottom: 25px;
+.demo-credentials {
+    background: #fff8f0;
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid #d2691e;
+    margin-bottom: 20px;
 }
 
-.login-link {
-    color: #667eea;
+.demo-credentials h4 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.demo-credentials p {
+    color: #666;
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+.back-to-store {
+    margin-top: 20px;
+}
+
+.store-link {
+    color: #d2691e;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
-.login-link:hover {
-    color: #764ba2;
+.store-link:hover {
+    color: #8b4513;
 }
 
-.signup-illustration {
+.admin-illustration {
     text-align: center;
     animation: slideInRight 0.8s ease;
 }
 
-.signup-illustration img {
+.admin-illustration img {
     width: 100%;
     max-width: 500px;
     height: auto;
@@ -299,12 +312,12 @@ body {
 }
 
 @media (max-width: 768px) {
-    .signup-container {
+    .admin-login-container {
         grid-template-columns: 1fr;
         gap: 40px;
     }
     
-    .signup-card {
+    .admin-login-card {
         padding: 30px 25px;
     }
     
@@ -312,15 +325,15 @@ body {
         font-size: 2rem;
     }
     
-    .signup-title {
+    .admin-login-title {
         font-size: 1.5rem;
     }
     
-    .signup-illustration {
+    .admin-illustration {
         order: -1;
     }
     
-    .signup-illustration img {
+    .admin-illustration img {
         max-width: 300px;
     }
 }

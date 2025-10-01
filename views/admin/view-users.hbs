@@ -1,0 +1,303 @@
+<div class="table-container">
+    <div class="table-header">
+        <h2 class="table-title">Users Management</h2>
+        <div class="table-actions">
+            <button class="btn btn-admin-primary" onclick="refreshUsersTable()">
+                <i class="fas fa-refresh"></i>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- TanStack Table Container -->
+    <div id="usersTableContainer">
+        <table class="tanstack-table" id="usersTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Registration Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                {{#each users}}
+                <tr>
+                    <td>{{this.index}}</td>
+                    <td>{{this.Name}}</td>
+                    <td>{{this.Email}}</td>
+                    <td>{{formatDate this.createdAt}}</td>
+                    <td>
+                        <span class="badge badge-{{#if this.isActive}}success{{else}}danger{{/if}}">
+                            {{#if this.isActive}}Active{{else}}Inactive{{/if}}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-admin-success" onclick="viewUser('{{this._id}}')" data-bs-toggle="modal" data-bs-target="#userModal">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {{#if this.isActive}}
+                        <button class="btn btn-sm btn-warning" onclick="toggleUserStatus('{{this._id}}', false, '{{this.Name}}')">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                        {{else}}
+                        <button class="btn btn-sm btn-admin-success" onclick="toggleUserStatus('{{this._id}}', true, '{{this.Name}}')">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- User Details Modal -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">User Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <p class="form-control-plaintext" id="userNameDetails">-</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <p class="form-control-plaintext" id="userEmailDetails">-</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Registration Date</label>
+                            <p class="form-control-plaintext" id="userRegistrationDetails">-</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <p class="form-control-plaintext">
+                                <span class="badge" id="userStatusBadge">-</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-label">User ID</label>
+                            <p class="form-control-plaintext text-muted" id="userIdDetails">-</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Order Statistics</h6>
+                        <div class="user-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="userOrderCount">0</span>
+                                <span class="stat-label">Total Orders</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="userTotalSpent">₹0</span>
+                                <span class="stat-label">Total Spent</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" id="toggleStatusBtn" onclick="toggleUserStatusFromModal()">
+                    Toggle Status
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUserId = null;
+    let currentUserStatus = null;
+    let currentUserName = null;
+
+    // View user details
+    async function viewUser(userId) {
+        try {
+            const response = await fetch(`/admin/api/user/${userId}`);
+            const user = await response.json();
+            
+            if (user) {
+                currentUserId = user._id;
+                currentUserStatus = user.isActive;
+                currentUserName = user.Name;
+                
+                document.getElementById('userNameDetails').textContent = user.Name || '-';
+                document.getElementById('userEmailDetails').textContent = user.Email || '-';
+                document.getElementById('userRegistrationDetails').textContent = 
+                    user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-';
+                document.getElementById('userIdDetails').textContent = user._id || '-';
+                
+                const statusBadge = document.getElementById('userStatusBadge');
+                statusBadge.textContent = user.isActive ? 'Active' : 'Inactive';
+                statusBadge.className = `badge badge-${user.isActive ? 'success' : 'danger'}`;
+                
+                // Update order statistics (placeholder - you can implement this)
+                document.getElementById('userOrderCount').textContent = user.orderCount || '0';
+                document.getElementById('userTotalSpent').textContent = '₹' + (user.totalSpent || '0');
+                
+                // Update toggle button
+                const toggleBtn = document.getElementById('toggleStatusBtn');
+                toggleBtn.textContent = user.isActive ? 'Deactivate User' : 'Activate User';
+                toggleBtn.className = `btn btn-${user.isActive ? 'warning' : 'success'}`;
+            }
+        } catch (error) {
+            console.error('Error loading user:', error);
+            alert('Error loading user data');
+        }
+    }
+
+    // Toggle user status
+    async function toggleUserStatus(userId, newStatus, userName) {
+        const action = newStatus ? 'activate' : 'deactivate';
+        if (confirm(`Are you sure you want to ${action} user "${userName}"?`)) {
+            try {
+                const response = await fetch(`/admin/api/user/${userId}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ isActive: newStatus })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Error updating user status');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating user status');
+            }
+        }
+    }
+
+    // Toggle user status from modal
+    function toggleUserStatusFromModal() {
+        if (currentUserId && currentUserName !== null) {
+            const newStatus = !currentUserStatus;
+            toggleUserStatus(currentUserId, newStatus, currentUserName);
+        }
+    }
+
+    // Refresh users table
+    function refreshUsersTable() {
+        location.reload();
+    }
+
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+
+<style>
+    .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .badge-danger {
+        background: linear-gradient(45deg, #dc3545, #e74c3c);
+        color: white;
+    }
+
+    .table-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tanstack-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .tanstack-table tbody tr:hover {
+        background: #f8f9fa;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .form-control-plaintext {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin: 0;
+    }
+
+    .user-stats {
+        display: flex;
+        gap: 30px;
+        margin-top: 15px;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #d2691e;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .btn-warning {
+        background: linear-gradient(45deg, #ffc107, #ffab00);
+        border: none;
+        color: white;
+        font-weight: 500;
+    }
+</style>

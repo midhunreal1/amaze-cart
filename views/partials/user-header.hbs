@@ -8,35 +8,37 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/">Products<span class="sr-only">(current)</span></a>
-                    </li>
-                          {{#if user}}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cart" >Cart <span class="badge badge-success" id="cart-count">{{cartCount}}</span></a>
-                    </li>
+                    {{#if user}}
                        <li class="nav-item">
                         <a class="nav-link" href="/orders">Orders</a>
                     </li>
-                          {{/if}}
+                    {{/if}}
                 </ul>
-                <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{#if user}}
-                {{user.Name}}
-                {{else}}
-                Account
-                {{/if}}
-                </button>
-             
-                <div class="dropdown-menu" >
-                {{#if  user}}
-                <a class="dropdown-item" href="/logout">Logout</a>
-                {{else}}
-                <a class="dropdown-item" href="/login">Login</a>
+                <div class="navbar-right-items">
+                    {{#if user}}
+                    <a href="/cart" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-count">{{cartCount}}</span>
+                    </a>
+                    {{/if}}
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{#if user}}
+                        {{user.Name}}
+                        {{else}}
+                        Account
+                        {{/if}}
+                        </button>
 
-                {{/if}}
-                </div>
+                        <div class="dropdown-menu dropdown-menu-right">
+                        {{#if  user}}
+                        <a class="dropdown-item" href="/logout">Logout</a>
+                        {{else}}
+                        <a class="dropdown-item" href="/login">Login</a>
+
+                        {{/if}}
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -47,34 +49,90 @@
             background-color: #f7f7f7;
             margin: 0;
             padding: 0;
-            
+            padding-top: 70px; /* Add padding to prevent content being hidden under fixed navbar */
         }
 
         .navbar {
             background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
         }
 
         .navbar-brand {
             font-size: 1.5rem;
             color: #007bff;
+            font-weight: 700;
         }
 
         .navbar-toggler-icon {
             border: none;
         }
 
+        .navbar-right-items {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-        .badge {
-            font-size: 0.8rem;
-            padding: 3px 6px;
+        .cart-link {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .cart-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+            color: white;
+            text-decoration: none;
+        }
+
+        .cart-link i {
+            font-size: 1.2rem;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 50%;
+            min-width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .dropdown .btn {
             background-color: #fff;
             color: #007bff;
             border: 1px solid #007bff;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown .btn:hover {
+            background-color: #007bff;
+            color: white;
         }
 
         .dropdown-menu {
@@ -83,6 +141,24 @@
 
         .dropdown-item {
             color: #007bff;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .navbar-right-items {
+                margin-top: 10px;
+                justify-content: space-between;
+            }
+
+            body {
+                padding-top: 60px;
+            }
         }
     </style>
     
